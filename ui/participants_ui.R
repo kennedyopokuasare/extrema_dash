@@ -36,6 +36,13 @@ participants_ui <- function() {
       wellPanel(
         DT::dataTableOutput("bluetooth_table")
       )
+    ),
+    
+    tabPanel(
+      "Location Data",
+      wellPanel(
+        DT::dataTableOutput("location_table")
+      )
     )
   )
 }
@@ -148,6 +155,36 @@ showBluetoothData<-function(output){
   
   data=loaddbData(query)
   output$bluetooth_table <-  DT::renderDataTable({
+    DT::datatable(
+      data,
+      options = list(
+        dom = 'Bfrtip' ,
+        buttons = list('csv'),
+        lengthMenu = c(5, 30, 50),
+        pageLength = 20
+      ),
+      extensions = c("Responsive", "Buttons"),
+      selection = 'single'
+    )
+  })
+}
+showlocationData<-function(output){
+  query='SELECT 
+      data->>"$.participantId" as participantId,
+      deviceId,
+       date_format(from_unixtime(data->>"$.entryDate"/1000),"%W %M %e %Y %H:%i:%S") as entryDate,
+       data->>"$.latitude" as latitude,
+       data->>"$.longitude" as longitude,
+       data->>"$.accuracy" as accuracy,
+       data->>"$.isIndoors" as isIndoors,
+       data->>"$.satellites" as satellites,
+       data->>"$.source" as source,
+       data->>"$.speed" as speed,
+       data->>"$.uid" as uid
+ FROM murad.locationData order by timestamp desc;'
+  
+  data=loaddbData(query)
+  output$location_table <-  DT::renderDataTable({
     DT::datatable(
       data,
       options = list(
