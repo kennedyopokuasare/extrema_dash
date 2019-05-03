@@ -103,7 +103,7 @@ showSurveyData<-function(output){
 showParticantList<-function(output){
   participants=  loadParticipants()
   options(
-    participantsDataSet =data 
+    participantsDataSet =participants 
   )
   output$participants_table <-  DT::renderDataTable({
     DT::datatable(
