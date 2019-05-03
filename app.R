@@ -8,10 +8,13 @@ library(dplyr)
 library(anytime)
 library(ggplot2)
 library(cowplot)
+library(plotly)
+library(leaflet)
 
 setwd(".")
 source("ui/participants_ui.R",local=TRUE)
 source("ui/dashboard_ui.R",local=TRUE)
+source("ui/report_ui.R",local=TRUE)
 source("db/dbaccess.R",local=TRUE)
 ui <- dashboardPage(
   dashboardHeader(title = "Extrema"),
@@ -32,10 +35,11 @@ ui <- dashboardPage(
       
       # Second tab content
       tabItem(tabName = "studyData",
-              participants_ui())
+              participants_ui()),
       # Third tab content
       
-    
+      tabItem(tabName = "report",
+              report_ui())
       
     )
   
@@ -49,6 +53,7 @@ server <- function(input, output, session) {
   showRuuviTagData(output)
   showBluetoothData(output)
   showlocationData(output)
+  report_server(input, output,session)
 }
 
 shinyApp(ui, server)

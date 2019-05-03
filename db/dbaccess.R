@@ -12,6 +12,9 @@ options(
     "dbname_" = "goals_study",
     "dbname" = "murad"
   
+  ),
+  globalData=list(
+    location=""
   )
 )
 getdbConnection <- function(dbname=options()$mysql$dbname,host=options()$mysql$host,port=options()$mysql$port,user=options()$mysql$user, password = options()$mysql$password) {

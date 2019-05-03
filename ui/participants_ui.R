@@ -102,6 +102,9 @@ showSurveyData<-function(output){
 }
 showParticantList<-function(output){
   participants=  loadParticipants()
+  options(
+    participantsDataSet =data 
+  )
   output$participants_table <-  DT::renderDataTable({
     DT::datatable(
       participants,
@@ -129,6 +132,9 @@ showRuuviTagData<-function(output){
       data->>"$.battery" as battery
   FROM murad.IndoorsTag order by timestamp desc;'
 data=loaddbData(query)
+options(
+  ruuviDataSet =data 
+)
 output$ruuviTag_table <-  DT::renderDataTable({
   DT::datatable(
     data,
@@ -154,6 +160,9 @@ showBluetoothData<-function(output){
  FROM murad.bluetoothData order by timestamp desc;'
   
   data=loaddbData(query)
+  options(
+    bluetoothDataSet =data 
+  )
   output$bluetooth_table <-  DT::renderDataTable({
     DT::datatable(
       data,
@@ -184,6 +193,9 @@ showlocationData<-function(output){
  FROM murad.locationData order by timestamp desc;'
   
   data=loaddbData(query)
+  options(
+    locationDataSet =data 
+  )
   output$location_table <-  DT::renderDataTable({
     DT::datatable(
       data,
