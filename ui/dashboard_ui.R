@@ -1,6 +1,6 @@
 dashboard_ui<-function(){
   fluidRow(
-  plotOutput("ruuviSync",height = "600px",width ="50%")
+  plotOutput("ruuviSync",height = "600px")
     )
       
   
@@ -21,7 +21,7 @@ ruuviSync<-function(output){
   colourCount1 = length(unique(data$deviceId))
 
 
-  output$ruuviSync<-renderPlot({
+  output$ruuviSync<-renderCachedPlot({
     ggplot(data, aes(
                       x = deviceId, 
                       y = last_sync, 
@@ -32,11 +32,18 @@ ruuviSync<-function(output){
             theme(
                   plot.title = element_text(hjust = 0.5, size = 20, face="bold"), 
                   axis.title.x=element_blank(), axis.title=element_text(size=15),
-                  axis.text=element_text(size=12)) + 
+                  axis.text=element_text(size=12),
+                  axis.text.x = element_text(angle=70, vjust=0.5)
+                  ) + 
            guides(fill=FALSE) + 
-      background_grid(major = "xy", minor = "none")+
-      coord_flip()
-  })
+      background_grid(major = "xy", minor = "none")
+    #+
+     #coord_flip()
+  },cacheKeyExpr={
+    sum(data$timestamp)# if sum of timestamp doesnt change render same cached plot
+  }
+  
+  )
   }
   
    
