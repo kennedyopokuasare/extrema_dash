@@ -85,7 +85,9 @@ loadSurveyData<-function(){
 }
 showSurveyData<-function(output){
   surveyData=  loadSurveyData()
-  
+  options(
+    surveyDataSet =surveyData 
+  )
   output$survey_table <-  DT::renderDataTable({
     DT::datatable(
       surveyData,

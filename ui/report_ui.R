@@ -17,7 +17,8 @@ report_ui<-function(){
     ),
     mainPanel(
         wellPanel(
-          leafletOutput("map")
+          leafletOutput("map"),
+          plotOutput("symptoms",height = "600px")
           )
         
       )
@@ -27,6 +28,7 @@ report_ui<-function(){
 
 report_server<-function(input, output,session){
   participants=as.data.frame(options()$participantsDataSet)
+  surveyDataset=as.data.frame(options()$surveyDataSet)
 
   updateSelectInput(session, "participantId",
                     choices = unique(participants$participantId),selected = NULL)
@@ -56,6 +58,14 @@ report_server<-function(input, output,session){
             )
    
   })
+    # output$symptoms<-renderCachedPlot({
+    #   req(input$participantId)
+    #   
+    #   surveyData=surveyDataset%>%
+    #     dplyr::filter(participantId==trimws(input$participantId))%>%
+    #     dplyr::select(shortnessOfBreath,cough,phlegm)
+    #   m->melt
+    # },cacheKeyExpr = {})
   })
   
 }

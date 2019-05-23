@@ -15,13 +15,15 @@ ruuviSync<-function(output){
                         timestamp_10_hours," group by deviceId  order by timestamp desc",sep = '') )
  
     currentTime=floor(as.numeric(Sys.time())*1000)
+    data$originalTimestamp<-data$timestamp
     data$timestamp<-trunc((currentTime-data$timestamp)/(1*60*60*1000)) #difftime(floor(as.numeric(Sys.time(),origin = "1970-01-01")*1000),data$timestamp,units = "hours")
     
     colnames(data)[2] <- "last_sync"
   colourCount1 = length(unique(data$deviceId))
 
 
-  output$ruuviSync<-renderCachedPlot({
+  output$ruuviSync<-renderPlot({
+  print(paste(sum(data$originalTimestamp)))
    p<- ggplot(data, aes(
                       x = deviceId, 
                       y = last_sync, 
@@ -38,9 +40,10 @@ ruuviSync<-function(output){
            guides(fill=FALSE) + 
       background_grid(major = "xy", minor = "none")
    p
-  },cacheKeyExpr={
-    sum(data$timestamp)# if sum of timestamp doesnt change render same cached plot
   }
+  # ,cacheKeyExpr={
+  #   sum(data$originalTimestamp)# if sum of timestamp doesnt change render same cached plot
+  # }
   
   )
   }
