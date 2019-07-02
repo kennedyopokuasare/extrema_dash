@@ -17,7 +17,7 @@ source("ui/dashboard_ui.R",local=TRUE)
 source("ui/report_ui.R",local=TRUE)
 source("db/dbaccess.R",local=TRUE)
 ui <- dashboardPage(
-  dashboardHeader(title = "Extrema"),
+  dashboardHeader(title = "PEHMO"),
   dashboardSidebar(sidebarMenu(
     menuItem(
       "Dashboard",
@@ -47,6 +47,7 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output, session) {
+  DailySurveyData(input,output)
   ruuviSync(output)
   showParticantList(output)
   showSurveyData(output)

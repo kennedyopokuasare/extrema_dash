@@ -61,26 +61,25 @@ loadParticipants<-function(){
 }
 loadSurveyData<-function(){
   query=' select 
-	participantId,entryDate, 
+    distinct participantId,entryDate, 
     d->>"$.regulateToday" as regulateToday,
-	d->>"$.symptomShortness" as shortnessOfBreath,
+	  d->>"$.symptomShortness" as shortnessOfBreath,
     d->>"$.symptomCough" as cough,
     d->>"$.symptomPhlegm" as phlegm,
-	d->>"$.symptomWheezing" as wheezing,
-	d->>"$.frequencyNocturnal" as freqNocturnalWakeups,
+  	d->>"$.symptomWheezing" as wheezing,
+	  d->>"$.frequencyNocturnal" as freqNocturnalWakeups,
     d->>"$.frequencyOpenMeds" as openingMeds,
     d->>"$.estimationAsthmaBalance" as estimationAsthmaBalance,
     d->>"$.preventNormal" as preventNormalActivity,
-    d->>"$.isColdToday" as havingColdToday,
-    d->>"$.isVisitDoctor" as visitedDoctorToday,
-    d->>"$.rescueCount" as rescueCount,d->>"$.otherMeds" as otherMeds,d->>"$.otherObs" as otherObs
+    d->>"$.otherObs" as otherObs
  FROM
 	(
 		SELECT data->>"$.surveyData" as d, 
                data->>"$.participantId" as participantId,
                data->>"$.entryDate" as raw,
-			   date_format(from_unixtime(data->>"$.entryDate"/1000),"%W %M %e %Y %H:%i:%S")  as entryDate
-		from murad.surveyData order by raw desc) as X;'
+			   from_unixtime(data->>"$.entryDate"/1000, "%Y-%m-%d %H:%i") as entryDate
+		from murad.surveyData order by raw desc) as X
+  order by entryDate desc;'
   return(loaddbData(query))
 }
 showSurveyData<-function(output){
@@ -91,11 +90,11 @@ showSurveyData<-function(output){
   output$survey_table <-  DT::renderDataTable({
     DT::datatable(
       surveyData,
+      class = 'cell-border stripe',
       options = list(
         dom = 'Brtip' ,
         buttons = list('csv'),
-        lengthMenu = c(5, 30, 50),
-        pageLength = 15
+        pageLength = nrow(surveyData)
       ),
       extensions = c("Responsive", "Buttons"),
       selection = 'single'

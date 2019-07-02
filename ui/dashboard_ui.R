@@ -1,12 +1,80 @@
 dashboard_ui<-function(){
-  fluidRow(
-  plotOutput("ruuviSync",height = "600px")
-    )
+  # fluidRow(
+  #   uiOutput("surveyDataCheck", inline=TRUE),
+  #   plotOutput("ruuviSync",height = "600px")
+  #   )
       
-  
+  navbarPage(
+    "",id="ComplainceTabs",
+    tabPanel(
+      "Daily Survey Data",
+      wellPanel(
+        column(3,dateInput("complainceDate","Select Date")),
+        br(),
+        DT::dataTableOutput("daily_survey_data_table")
+      )
+    ),
+    tabPanel(
+      "Ruuvu Tag Sync",
+      wellPanel(
+        plotOutput("ruuviSync",height = "600px")
+      )
+    )
+  )
   
 }
 
+DailySurveyData<-function(input, output){
+  output$daily_survey_data_table<-DT::renderDataTable(
+    {
+      req(input$complainceDate)
+      
+      referenceDate=input$complainceDate
+     
+      query='select 
+        	distinct p.data->>"$.participantEmail" as participantEmail,
+            participantId,entryDate, 
+            d->>"$.regulateToday" as regulateToday,
+          	d->>"$.symptomShortness" as shortnessOfBreath,
+            d->>"$.symptomCough" as cough,
+            d->>"$.symptomPhlegm" as phlegm,
+          	d->>"$.symptomWheezing" as wheezing,
+          	d->>"$.frequencyNocturnal" as freqNocturnalWakeups,
+            d->>"$.frequencyOpenMeds" as openingMeds,
+            d->>"$.estimationAsthmaBalance" as estimationAsthmaBalance,
+            d->>"$.preventNormal" as preventNormalActivity,
+		  	    d->>"$.otherObs" as otherObs
+            from	
+            (SELECT data->>"$.surveyData" as d, 
+                       data->>"$.participantId" as participantId,
+                       data->>"$.entryDate" as raw,
+                       deviceId,
+        			   from_unixtime(data->>"$.entryDate"/1000, "%Y-%m-%d %H:%i") as entryDate
+        		from murad.surveyData) as x
+                left join murad.participantData p on x.deviceId=p.deviceId
+			where from_unixtime(raw/1000, "%Y-%m-%d")="#referenceDate#"
+			order by participantId,entryDate desc;'
+      
+      query=gsub("#referenceDate#",referenceDate,query)
+      data=loaddbData(query)
+    
+      DT::datatable(
+         data,
+         rownames = FALSE,
+         class = 'cell-border stripe',
+         options = list(
+           dom = 'Bfrtip' ,
+           buttons = list('csv'),
+           pageLength = nrow(data)
+         ),
+         extensions = c("Responsive", "Buttons"),
+         selection = 'single'
+       )
+    
+      
+    }
+  )
+}
 ruuviSync<-function(output){
   
   timestamp_10_hours <- floor(as.numeric(Sys.time())*1000)-36000000
@@ -23,7 +91,6 @@ ruuviSync<-function(output){
 
 
   output$ruuviSync<-renderPlot({
-  print(paste(sum(data$originalTimestamp)))
    p<- ggplot(data, aes(
                       x = deviceId, 
                       y = last_sync, 

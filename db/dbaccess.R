@@ -26,7 +26,7 @@ getdbConnection <- function(dbname=options()$mysql$dbname,host=options()$mysql$h
       port = port,
       user = user,
       password = password
-      
+   
     )
   return(db)
 }
@@ -34,6 +34,7 @@ getdbConnection <- function(dbname=options()$mysql$dbname,host=options()$mysql$h
 loaddbData<-function(query,dbconn=NULL){
   db=dbconn
   if(is.null(dbconn))db=getdbConnection()
+  dbSendQuery(db,"SET NAMES utf8")
   results = dbGetQuery(db, query)
   dbDisconnect(db)
   return(results)
