@@ -24,8 +24,9 @@ ui <- dashboardPage(
       tabName = "dashboard",
       icon = icon("dashboard")
     ),
-    menuItem("Data", tabName = "studyData", icon = icon("user")),
-    menuItem("Report", tabName = "report", icon = icon("chart-bar"))
+    menuItem("Data", tabName = "studyData", icon = icon("user"))
+    #,
+   # menuItem("Report", tabName = "report", icon = icon("chart-bar"))
   )),
   dashboardBody(
       tabItems(
@@ -35,11 +36,12 @@ ui <- dashboardPage(
       
       # Second tab content
       tabItem(tabName = "studyData",
-              participants_ui()),
+              participants_ui())
+      # ,
       # Third tab content
       
-      tabItem(tabName = "report",
-              report_ui())
+      # tabItem(tabName = "report",
+      #         report_ui())
       
     )
   

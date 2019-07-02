@@ -49,12 +49,12 @@ participants_ui <- function() {
 
 
 loadParticipants<-function(){
-  query="SELECT  
+  query="SELECT  distinct
 	 data->>'$.participantName' as Name,
 	 data->>'$.participantEmail' as Email,
 	 data->>'$.participantId' as participantId,
-	 data->>'$.ruuviTag' as ruuviTag,date_format(from_unixtime(data->>'$.onboardDate'/1000),'%W %M %e %Y %H:%i:%S')  as onboardDate,
-	 data->>'$.uid' as uid,
+	 data->>'$.ruuviTag' as ruuviTag,
+   from_unixtime(data->>'$.onboardDate'/1000, '%Y-%m-%d %H:%i')  as onboardDate,
 	 deviceId
  FROM murad.participantData order by onboardDate desc;"
   return(loaddbData(query))
@@ -92,7 +92,7 @@ showSurveyData<-function(output){
       surveyData,
       class = 'cell-border stripe',
       options = list(
-        dom = 'Brtip' ,
+        dom = 'Bfrtip' ,
         buttons = list('csv'),
         pageLength = nrow(surveyData)
       ),
@@ -109,6 +109,7 @@ showParticantList<-function(output){
   output$participants_table <-  DT::renderDataTable({
     DT::datatable(
       participants,
+      class = 'cell-border stripe',
       options = list(
         dom = 'Bfrtip' ,
         buttons = list('csv'),
@@ -139,6 +140,7 @@ options(
 output$ruuviTag_table <-  DT::renderDataTable({
   DT::datatable(
     data,
+    class = 'cell-border stripe',
     options = list(
       dom = 'Bfrtip' ,
       buttons = list('csv'),
@@ -152,13 +154,14 @@ output$ruuviTag_table <-  DT::renderDataTable({
 }
 showBluetoothData<-function(output){
   query='SELECT 
+    distinct
     data->>"$.participantId" as participantId,
     deviceId,
      data->>"$.btRSSI" as btRSSI,
      data->>"$.macAddress" as macAddress,
-     date_format(from_unixtime(data->>"$.entryDate"/1000),"%W %M %e %Y %H:%i:%S") as entryDate,
-     data->>"$.uid" as uid
- FROM murad.bluetoothData order by timestamp desc;'
+     from_unixtime(data->>"$.entryDate"/1000, "%Y-%m-%d %H:%i") as entryDate
+    
+ FROM murad.bluetoothData order by entryDate desc;'
   
   data=loaddbData(query)
   options(
@@ -167,6 +170,7 @@ showBluetoothData<-function(output){
   output$bluetooth_table <-  DT::renderDataTable({
     DT::datatable(
       data,
+      class = 'cell-border stripe',
       options = list(
         dom = 'Bfrtip' ,
         buttons = list('csv'),
@@ -180,18 +184,18 @@ showBluetoothData<-function(output){
 }
 showlocationData<-function(output){
   query='SELECT 
+      distinct
       data->>"$.participantId" as participantId,
       deviceId,
-       date_format(from_unixtime(data->>"$.entryDate"/1000),"%W %M %e %Y %H:%i:%S") as entryDate,
+       from_unixtime(data->>"$.entryDate"/1000, "%Y-%m-%d %H:%i") as entryDate,
        data->>"$.latitude" as latitude,
        data->>"$.longitude" as longitude,
        data->>"$.accuracy" as accuracy,
        data->>"$.isIndoors" as isIndoors,
        data->>"$.satellites" as satellites,
        data->>"$.source" as source,
-       data->>"$.speed" as speed,
-       data->>"$.uid" as uid
- FROM murad.locationData order by timestamp desc;'
+       data->>"$.speed" as speed
+ FROM murad.locationData order by entryDate desc;'
   
   data=loaddbData(query)
   options(
@@ -200,6 +204,7 @@ showlocationData<-function(output){
   output$location_table <-  DT::renderDataTable({
     DT::datatable(
       data,
+      class = 'cell-border stripe',
       options = list(
         dom = 'Bfrtip' ,
         buttons = list('csv'),
