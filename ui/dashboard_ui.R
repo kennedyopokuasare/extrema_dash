@@ -7,6 +7,12 @@ dashboard_ui<-function(){
   navbarPage(
     "",id="ComplainceTabs",
     tabPanel(
+      "Compliance",
+      wellPanel(
+        DT::dataTableOutput("compliance_overview_table")
+      )
+    ),
+    tabPanel(
       "Daily Survey Data",
       wellPanel(
         column(3,dateInput("complainceDate","Select Date")),
@@ -22,6 +28,43 @@ dashboard_ui<-function(){
     )
   )
   
+}
+
+participantLastEntries<-function(input,output){
+  locationQuery='SELECT 
+                    lower(p.data->>"$.participantEmail") as participantEmail,
+                  	p.data->>"$.participantId" as participantId,
+                	  max(from_unixtime(l.data->>"$.entryDate"/1000, "%Y-%m-%d %H:%i")) as location
+                 FROM murad.participantData p left join murad.locationData l on p.deviceId=l.deviceId
+                 group by participantId,participantEmail
+                 order by participantId,location desc;'
+  locationData=data=loaddbData(locationQuery)
+  surveyQuery='SELECT 
+                	lower(p.data->>"$.participantEmail") as participantEmail,
+                	p.data->>"$.participantId" as participantId,
+                	max(from_unixtime(s.data->>"$.entryDate"/1000, "%Y-%m-%d %H:%i")) as survey
+               FROM murad.participantData p left join murad.surveyData s on p.deviceId=s.deviceId
+               group by participantId,participantEmail
+               order by participantId,survey desc;'
+  surveydata=loaddbData(surveyQuery)
+  data=merge(surveydata,locationData,by="participantId")[,c("participantEmail.x","participantId","survey","location")]
+  names(data)[names(data)=="participantEmail.x"]<-"participantEmail"
+  output$compliance_overview_table<-DT::renderDataTable(
+    {
+      DT::datatable(
+        data,
+        class = 'cell-border stripe',
+        caption = "The table shows the date of the last entries received from each participant",
+        options = list(
+          dom = 'Bfrtip' ,
+          buttons = list('csv'),
+          pageLength = nrow(data)
+        ),
+        extensions = c("Responsive", "Buttons"),
+        selection = 'single'
+      )
+    }
+  )
 }
 
 DailySurveyData<-function(input, output){
@@ -60,8 +103,8 @@ DailySurveyData<-function(input, output){
     
       DT::datatable(
          data,
-         rownames = FALSE,
          class = 'cell-border stripe',
+         caption = "Table show the survey entries for a particular day. Select date of interest above to show survey entries",
          options = list(
            dom = 'Bfrtip' ,
            buttons = list('csv'),

@@ -12,36 +12,24 @@ participants_ui <- function() {
     ),
     tabPanel(
       "Survey Data",
-    # wellPanel(
-    #     fluidRow(width=5,
-    #       textInput("participantId","ParticipantId",width = 10) ,
-    #       dateInput("entryDate","Entry Date"),
-    #       actionButton("filterBtn","Filter",class = "btn-primary",
-    #                    style = "color:#FFF",
-    #                    icon = icon("search"))
-    #     )
-    #   )
-    # ,br(),
       wellPanel(
         DT::dataTableOutput("survey_table")
       )
     ),
-    tabPanel("Ruuvi Tag", wellPanel(
-        DT::dataTableOutput("ruuviTag_table")
-    
-    )),
-    
-    tabPanel(
-      "Bluetooth Data",
-      wellPanel(
-        DT::dataTableOutput("bluetooth_table")
-      )
-    ),
-    
     tabPanel(
       "Location Data",
       wellPanel(
         DT::dataTableOutput("location_table")
+      )
+    ),
+    tabPanel("Ruuvi Tag", wellPanel(
+        DT::dataTableOutput("ruuviTag_table")
+    )
+    ),
+    tabPanel(
+      "Bluetooth Data",
+      wellPanel(
+        DT::dataTableOutput("bluetooth_table")
       )
     )
   )
@@ -87,14 +75,17 @@ showSurveyData<-function(output){
   options(
     surveyDataSet =surveyData 
   )
+  surveyData$entryDate=as.Date(surveyData$entryDate)
   output$survey_table <-  DT::renderDataTable({
     DT::datatable(
       surveyData,
       class = 'cell-border stripe',
+      caption = "The table shows a list of all survey entries",
       options = list(
         dom = 'Bfrtip' ,
         buttons = list('csv'),
         pageLength = nrow(surveyData)
+        
       ),
       extensions = c("Responsive", "Buttons"),
       selection = 'single'
@@ -110,11 +101,12 @@ showParticantList<-function(output){
     DT::datatable(
       participants,
       class = 'cell-border stripe',
+      caption = "The shows a list of participant. A new deviceId is generated for each installation of the data collection application",
       options = list(
         dom = 'Bfrtip' ,
         buttons = list('csv'),
         lengthMenu = c(5, 30, 50),
-        pageLength = 20
+        pageLength = nrow(participants)
       ),
       extensions = c("Responsive", "Buttons"),
       selection = 'single'
@@ -205,11 +197,12 @@ showlocationData<-function(output){
     DT::datatable(
       data,
       class = 'cell-border stripe',
+      caption = "The table shows a list of all Location data entries",
       options = list(
         dom = 'Bfrtip' ,
         buttons = list('csv'),
         lengthMenu = c(5, 30, 50),
-        pageLength = 20
+        pageLength = 200
       ),
       extensions = c("Responsive", "Buttons"),
       selection = 'single'
