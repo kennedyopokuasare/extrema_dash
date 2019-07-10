@@ -21,17 +21,18 @@ participants_ui <- function() {
       wellPanel(
         DT::dataTableOutput("location_table")
       )
-    ),
-    tabPanel("Ruuvi Tag", wellPanel(
-        DT::dataTableOutput("ruuviTag_table")
     )
-    ),
-    tabPanel(
-      "Bluetooth Data",
-      wellPanel(
-        DT::dataTableOutput("bluetooth_table")
-      )
-    )
+    # ,
+    # tabPanel("Ruuvi Tag", wellPanel(
+    #     DT::dataTableOutput("ruuviTag_table")
+    # )
+    # ),
+    # tabPanel(
+    #   "Bluetooth Data",
+    #   wellPanel(
+    #     DT::dataTableOutput("bluetooth_table")
+    #   )
+    # )
   )
 }
 
