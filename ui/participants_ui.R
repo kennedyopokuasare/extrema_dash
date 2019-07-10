@@ -38,36 +38,38 @@ participants_ui <- function() {
 
 loadParticipants<-function(){
   query="SELECT  distinct
-	 data->>'$.participantName' as Name,
-	 data->>'$.participantEmail' as Email,
-	 data->>'$.participantId' as participantId,
-	 data->>'$.ruuviTag' as ruuviTag,
-   from_unixtime(data->>'$.onboardDate'/1000, '%Y-%m-%d %H:%i')  as onboardDate,
-	 deviceId
- FROM murad.participantData order by onboardDate desc;"
+          	 max(lower(data->>'$.participantName')) as Name,
+          	 lower(data->>'$.participantEmail') as Email,
+          	 data->>'$.participantId' as participantId,
+          	 data->>'$.ruuviTag' as ruuviTag,
+             max(from_unixtime(data->>'$.onboardDate'/1000, '%Y-%m-%d %H:%i'))  as onboardDate
+         FROM murad.participantData 
+         GROUP by Email,participantId,ruuviTag
+         order by onboardDate desc;"
   return(loaddbData(query))
 }
 loadSurveyData<-function(){
-  query=' select 
-    distinct participantId,entryDate, 
-    d->>"$.regulateToday" as regulateToday,
-	  d->>"$.symptomShortness" as shortnessOfBreath,
-    d->>"$.symptomCough" as cough,
-    d->>"$.symptomPhlegm" as phlegm,
-  	d->>"$.symptomWheezing" as wheezing,
-	  d->>"$.frequencyNocturnal" as freqNocturnalWakeups,
-    d->>"$.frequencyOpenMeds" as openingMeds,
-    d->>"$.estimationAsthmaBalance" as estimationAsthmaBalance,
-    d->>"$.preventNormal" as preventNormalActivity,
-    d->>"$.otherObs" as otherObs
- FROM
-	(
-		SELECT data->>"$.surveyData" as d, 
-               data->>"$.participantId" as participantId,
-               data->>"$.entryDate" as raw,
-			   from_unixtime(data->>"$.entryDate"/1000, "%Y-%m-%d %H:%i") as entryDate
-		from murad.surveyData order by raw desc) as X
-  order by entryDate desc;'
+  query='select 
+            distinct participantId,entryDate, 
+            CASE 
+        		WHEN d->>"$.regulateToday" IS NULL THEN d->>"$.frequencyOpenMeds" 
+          	END as regulateToday,
+        	  d->>"$.symptomShortness" as shortnessOfBreath,
+            d->>"$.symptomCough" as cough,
+            d->>"$.symptomPhlegm" as phlegm,
+          	d->>"$.symptomWheezing" as wheezing,
+        	  d->>"$.frequencyNocturnal" as freqNocturnalWakeups,
+            d->>"$.estimationAsthmaBalance" as estimationAsthmaBalance,
+            d->>"$.preventNormal" as preventNormalActivity,
+            d->>"$.otherObs" as otherObs
+         FROM
+        	(
+        		SELECT data->>"$.surveyData" as d, 
+                       data->>"$.participantId" as participantId,
+                       data->>"$.entryDate" as raw,
+        			   from_unixtime(data->>"$.entryDate"/1000, "%Y-%m-%d %H:%i") as entryDate
+        		from murad.surveyData order by raw desc) as X
+          order by entryDate desc;'
   return(loaddbData(query))
 }
 showSurveyData<-function(output){

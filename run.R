@@ -6,6 +6,5 @@
 library(shiny)
 setwd("/home/asare/source/pehmo_dash")
 port=5050
-#browseURL("http://127.0.0.1:5050/#!/bdi")
 shiny::runApp(port=port,launch.browser = F)
 
