@@ -51,11 +51,11 @@ ui <- dashboardPage(
 server <- function(input, output, session) {
   participantLastEntries(input,output)
   DailySurveyData(input,output)
-  ruuviSync(output)
+  #ruuviSync(output)
   showParticantList(output)
   showSurveyData(output)
-  showRuuviTagData(output)
-  showBluetoothData(output)
+  #showRuuviTagData(output)
+  #showBluetoothData(output)
   showlocationData(output)
   report_server(input, output,session)
 }

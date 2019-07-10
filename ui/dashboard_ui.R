@@ -19,13 +19,14 @@ dashboard_ui<-function(){
         br(),
         DT::dataTableOutput("daily_survey_data_table")
       )
-    ),
-    tabPanel(
-      "Ruuvu Tag Sync",
-      wellPanel(
-        plotOutput("ruuviSync",height = "600px")
-      )
     )
+    # ,
+    # tabPanel(
+    #   "Ruuvu Tag Sync",
+    #   wellPanel(
+    #     plotOutput("ruuviSync",height = "600px")
+    #   )
+    # )
   )
   
 }
