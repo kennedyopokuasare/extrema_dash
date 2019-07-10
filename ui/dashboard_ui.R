@@ -76,18 +76,19 @@ DailySurveyData<-function(input, output){
       referenceDate=input$complainceDate
      
       query='select 
-        	distinct p.data->>"$.participantEmail" as participantEmail,
-            participantId,entryDate, 
-            d->>"$.regulateToday" as regulateToday,
-          	d->>"$.symptomShortness" as shortnessOfBreath,
-            d->>"$.symptomCough" as cough,
-            d->>"$.symptomPhlegm" as phlegm,
-          	d->>"$.symptomWheezing" as wheezing,
-          	d->>"$.frequencyNocturnal" as freqNocturnalWakeups,
-            d->>"$.frequencyOpenMeds" as openingMeds,
-            d->>"$.estimationAsthmaBalance" as estimationAsthmaBalance,
-            d->>"$.preventNormal" as preventNormalActivity,
-		  	    d->>"$.otherObs" as otherObs
+            	distinct participantId,entryDate, 
+              CASE 
+          	    	WHEN d->>"$.regulateToday" IS NULL THEN d->>"$.frequencyOpenMeds" 
+                  ELSE d->>"$.regulateToday"
+          	  END as regulateToday,
+            	d->>"$.symptomShortness" as shortnessOfBreath,
+              d->>"$.symptomCough" as cough,
+              d->>"$.symptomPhlegm" as phlegm,
+            	d->>"$.symptomWheezing" as wheezing,
+            	d->>"$.frequencyNocturnal" as freqNocturnalWakeups,
+              d->>"$.estimationAsthmaBalance" as estimationAsthmaBalance,
+              d->>"$.preventNormal" as preventNormalActivity,
+              d->>"$.otherObs" as otherObs
             from	
             (SELECT data->>"$.surveyData" as d, 
                        data->>"$.participantId" as participantId,

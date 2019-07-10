@@ -53,7 +53,8 @@ loadSurveyData<-function(){
   query='select 
             distinct participantId,entryDate, 
             CASE 
-        		WHEN d->>"$.regulateToday" IS NULL THEN d->>"$.frequencyOpenMeds" 
+        	  	WHEN d->>"$.regulateToday" IS NULL THEN d->>"$.frequencyOpenMeds" 
+              ELSE d->>"$.regulateToday"
           	END as regulateToday,
         	  d->>"$.symptomShortness" as shortnessOfBreath,
             d->>"$.symptomCough" as cough,
