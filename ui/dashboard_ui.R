@@ -19,6 +19,17 @@ dashboard_ui<-function(){
         br(),
         DT::dataTableOutput("daily_survey_data_table")
       )
+    ),
+    tabPanel(
+      "Daily Location Data",
+      wellPanel(
+        fluidRow(
+          column(3,dateInput("locationDate","Select Date")),
+          column(3,textInput("participantId","Enter Participant"))
+        ),
+        br(),
+        DT::dataTableOutput("daily_locaiton_data_table")
+      )
     )
     # ,
     # tabPanel(
@@ -74,6 +85,7 @@ DailySurveyData<-function(input, output){
       req(input$complainceDate)
       
       referenceDate=input$complainceDate
+      
      
       query='select 
             	distinct participantId,entryDate, 
@@ -119,6 +131,73 @@ DailySurveyData<-function(input, output){
       
     }
   )
+}
+dailyLocationData<-function(input,output){
+  output$daily_locaiton_data_table<-DT::renderDataTable(
+    {
+      req(input$locationDate)
+      
+      referenceDate=input$locationDate
+      refParticipantId=trimws(input$participantId)
+      
+      
+      query='SELECT 
+      distinct
+      data->>"$.participantId" as participantId,
+      deviceId,
+       from_unixtime(data->>"$.entryDate"/1000, "%Y-%m-%d %H:%i") as entryDate,
+       data->>"$.latitude" as latitude,
+       data->>"$.longitude" as longitude,
+       data->>"$.accuracy" as accuracy,
+       data->>"$.isIndoors" as isIndoors,
+       data->>"$.satellites" as satellites,
+       data->>"$.source" as source,
+       data->>"$.speed" as speed
+ FROM murad.locationData 
+ where from_unixtime( json_unquote(json_extract(data,"$.entryDate"))/1000, "%Y-%m-%d")="#referenceDate#"
+ order by participantId,entryDate desc;'
+      
+      if(refParticipantId!='')
+      {
+        query='SELECT 
+      distinct
+      data->>"$.participantId" as participantId,
+      deviceId,
+       from_unixtime(data->>"$.entryDate"/1000, "%Y-%m-%d %H:%i") as entryDate,
+       data->>"$.latitude" as latitude,
+       data->>"$.longitude" as longitude,
+       data->>"$.accuracy" as accuracy,
+       data->>"$.isIndoors" as isIndoors,
+       data->>"$.satellites" as satellites,
+       data->>"$.source" as source,
+       data->>"$.speed" as speed
+ FROM murad.locationData 
+ where from_unixtime( json_unquote(json_extract(data,"$.entryDate"))/1000, "%Y-%m-%d")="#referenceDate#"
+      and json_unquote(json_extract(data,"$.participantId"))="#refPartipantId#"
+ order by participantId,entryDate desc;'
+        
+        query=gsub("#refPartipantId#",refParticipantId,query)
+      }
+        
+      query=gsub("#referenceDate#",referenceDate,query)
+      data=loaddbData(query)
+      
+      DT::datatable(
+        data,
+        class = 'cell-border stripe',
+        caption = "Table shows the GPS location entries for a particular day and per participant. 
+                    Select date of interest above to show location entries",
+        options = list(
+          dom = 'Bfrtip' ,
+          buttons = list('csv'),
+          pageLength = nrow(data)
+        ),
+        extensions = c("Responsive", "Buttons"),
+        selection = 'single'
+      )
+      
+      
+    })
 }
 ruuviSync<-function(output){
   

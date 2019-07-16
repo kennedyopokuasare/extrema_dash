@@ -51,6 +51,7 @@ ui <- dashboardPage(
 server <- function(input, output, session) {
   participantLastEntries(input,output)
   DailySurveyData(input,output)
+  dailyLocationData(input,output)
   #ruuviSync(output)
   showParticantList(output)
   showSurveyData(output)
