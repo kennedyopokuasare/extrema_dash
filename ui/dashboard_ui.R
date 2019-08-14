@@ -7,6 +7,12 @@ dashboard_ui<-function(){
   navbarPage(
     "",id="ComplainceTabs",
     tabPanel(
+      "Ruuvu Tag Sync",
+      wellPanel(
+        plotOutput("ruuviSync",height = "600px")
+      )
+    ),
+    tabPanel(
       "Compliance",
       wellPanel(
         DT::dataTableOutput("compliance_overview_table")
@@ -25,19 +31,14 @@ dashboard_ui<-function(){
       wellPanel(
         fluidRow(
           column(3,dateInput("locationDate","Select Date")),
-          column(3,textInput("participantId","Enter Participant"))
+          column(3,textInput("location_compliance_participantId","Enter Participant"))
         ),
         br(),
         DT::dataTableOutput("daily_locaiton_data_table")
       )
     )
-    # ,
-    # tabPanel(
-    #   "Ruuvu Tag Sync",
-    #   wellPanel(
-    #     plotOutput("ruuviSync",height = "600px")
-    #   )
-    # )
+     
+    
   )
   
 }
@@ -61,6 +62,7 @@ participantLastEntries<-function(input,output){
   surveydata=loaddbData(surveyQuery)
   data=merge(surveydata,locationData,by="participantId")[,c("participantEmail.x","participantId","survey","location")]
   names(data)[names(data)=="participantEmail.x"]<-"participantEmail"
+  data=data%>%arrange(desc(survey),desc(location))
   output$compliance_overview_table<-DT::renderDataTable(
     {
       DT::datatable(
@@ -138,8 +140,8 @@ dailyLocationData<-function(input,output){
       req(input$locationDate)
       
       referenceDate=input$locationDate
-      refParticipantId=trimws(input$participantId)
-      
+      refParticipantId=trimws(input$location_compliance_participantId)
+      #print(paste(referenceDate))
       
       query='SELECT 
       distinct
@@ -182,6 +184,7 @@ dailyLocationData<-function(input,output){
       query=gsub("#referenceDate#",referenceDate,query)
       data=loaddbData(query)
       
+      print(paste(query))
       DT::datatable(
         data,
         class = 'cell-border stripe',

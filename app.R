@@ -25,8 +25,8 @@ ui <- dashboardPage(
       icon = icon("dashboard")
     ),
     menuItem("Data", tabName = "studyData", icon = icon("user"))
-    #,
-   # menuItem("Report", tabName = "report", icon = icon("chart-bar"))
+    ,
+    menuItem("Report", tabName = "report", icon = icon("chart-bar"))
   )),
   dashboardBody(
       tabItems(
@@ -37,11 +37,11 @@ ui <- dashboardPage(
       # Second tab content
       tabItem(tabName = "studyData",
               participants_ui())
-      # ,
+      ,
       # Third tab content
       
-      # tabItem(tabName = "report",
-      #         report_ui())
+      tabItem(tabName = "report",
+             report_ui())
       
     )
   
@@ -52,11 +52,11 @@ server <- function(input, output, session) {
   participantLastEntries(input,output)
   DailySurveyData(input,output)
   dailyLocationData(input,output)
-  #ruuviSync(output)
+  ruuviSync(output)
   showParticantList(output)
   showSurveyData(output)
-  #showRuuviTagData(output)
-  #showBluetoothData(output)
+  showRuuviTagData(output)
+  showBluetoothData(output)
   showlocationData(output)
   report_server(input, output,session)
 }
